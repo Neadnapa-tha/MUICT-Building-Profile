@@ -1,0 +1,45 @@
+docker-compose ps
+
+
+def save_transectiondata_to_csv():
+    try:
+        postgres_hook = PostgresHook(postgres_conn_id='postgres_conn')
+
+        select_query = "SELECT * FROM transsection;"
+
+        # ใช้ PostgresHook เพื่อดึงข้อมูล
+        # result = postgres_hook.get_records(select_query)
+
+        # if result:
+        output_dir = Variable.get('output_dir')
+        csv_file_path = os.path.join(output_dir, 'transsection_data.csv')
+
+        os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
+
+        with open(csv_file_path, 'w', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow('Hello')
+
+
+                # เขียน column ลง CSV
+                # csv_writer.writerow([col[0] for col in postgres_hook.get_first(select_query)])
+
+                # เขียนข้อมูลลง CSV
+                # csv_writer.writerows(result)
+            
+            logging.info("Successfully saved transaction data to CSV file.")
+        # else:
+        #     logging.warning("No data found to save to CSV.")
+    
+    except Exception as e:
+        logging.error(f"Error saving transaction data to CSV: {e}")
+        raise
+
+
+save_transectiondata_to_csv_task = PythonOperator(
+    task_id='save_transectiondata_to_csv',
+    python_callable=save_transectiondata_to_csv,
+    dag=dag,
+)
+
+save_transectiondata_to_csv_task
